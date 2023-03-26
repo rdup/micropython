@@ -1,0 +1,20 @@
+from machine import SPI, Pin
+
+spi = SPI(1, baudrate=400000)
+cs = Pin('PB7', mode=Pin.OUT, value=1)
+spi.init(pins=('PB2','PB5','PB4'))
+cs(0)                               # Select peripheral.
+spi.write(b"12345678")
+cs(1)
+cs(0)                               # Select peripheral.
+rxdata = spi.read(8, 0x42)
+cs(1)
+rxdata = bytearray(8)
+cs(0)                               # Select peripheral.
+spi.readinto(rxdata, 0x42)          # Read 8 bytes inplace while writing 0x42 for each byte.
+cs(1)
+txdata = b"12345678"
+rxdata = bytearray(len(txdata))
+cs(0)                               # Select peripheral.
+spi.write_readinto(txdata, rxdata)  # Simultaneously write and read bytes.
+cs(1)          
